@@ -1,0 +1,907 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <title>ERC20 Transfer Failed – Why Crypto Transfers Fail (2026)</title>
+  <meta name="description" content="ERC20 transfer failed? Fix token transfer reverted, MetaMask transfer failed, gas issues, contract restrictions, and pending transfers. Step-by-step runbook + contract checks + deep FAQ (2026)." />
+  <meta name="author" content="Onchain Transfer Support Desk" />
+  <link rel="canonical" href="https://erc20-transfer-failed.github.io/" />
+
+  <meta property="og:title" content="ERC20 Transfer Failed – Why Crypto Transfers Fail (2026)" />
+  <meta property="og:description" content="Diagnose ERC20 transaction failed: gas problems, token contract restrictions, wallet errors, and how to fix transfer reverted/pending." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://erc20-transfer-failed.github.io/" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Article",
+    "headline":"ERC20 Transfer Failed – Why Crypto Transfers Fail (2026)",
+    "author":{"@type":"Organization","name":"Onchain Transfer Support Desk"},
+    "datePublished":"2026-03-04",
+    "dateModified":"2026-03-04",
+    "mainEntityOfPage":{"@type":"WebPage","@id":"https://erc20-transfer-failed.github.io/"}
+  }
+  </script>
+
+  <!-- Unique font + different visual system -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#06070b;
+      --bg2:#0b1020;
+      --paper: rgba(255,255,255,.06);
+      --paper2: rgba(255,255,255,.10);
+      --border: rgba(255,255,255,.14);
+
+      --text:#eef2ff;
+      --muted: rgba(238,242,255,.74);
+
+      --c1:#38bdf8; /* sky */
+      --c2:#f472b6; /* pink */
+      --c3:#a78bfa; /* purple */
+      --ok:#22c55e;
+      --warn:#fbbf24;
+      --bad:#fb7185;
+
+      --shadow: 0 34px 110px rgba(0,0,0,.55);
+      --shadow2: 0 14px 44px rgba(0,0,0,.36);
+
+      --max: 1180px;
+      --r1: 18px;
+      --r2: 30px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      color:var(--text);
+      background:
+        radial-gradient(900px 520px at 14% 10%, rgba(56,189,248,.18), transparent 60%),
+        radial-gradient(900px 520px at 86% 10%, rgba(244,114,182,.14), transparent 60%),
+        radial-gradient(900px 520px at 50% 120%, rgba(167,139,250,.12), transparent 62%),
+        linear-gradient(160deg, var(--bg), var(--bg2));
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      line-height:1.7;
+      overflow-x:hidden;
+    }
+    a{color:#cfe3ff; text-decoration:none}
+    a:hover{text-decoration:underline}
+    .container{max-width:var(--max); margin:0 auto; padding:0 18px}
+
+    /* Top bar (keyword in brand) */
+    .topbar{
+      position:sticky; top:0; z-index:50;
+      backdrop-filter: blur(14px);
+      background: rgba(6,7,11,.56);
+      border-bottom: 1px solid rgba(255,255,255,.10);
+    }
+    .topbar-inner{
+      display:flex; align-items:center; justify-content:space-between; gap:14px;
+      padding:14px 0;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px;
+      min-width: 300px;
+    }
+    .logo{
+      width:40px; height:40px; border-radius:16px;
+      background: linear-gradient(135deg, rgba(56,189,248,.92), rgba(244,114,182,.90), rgba(167,139,250,.88));
+      box-shadow: 0 18px 50px rgba(56,189,248,.10);
+      position:relative; overflow:hidden;
+      flex:0 0 auto;
+    }
+    .logo:after{
+      content:"";
+      position:absolute; inset:11px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.12);
+      transform: rotate(12deg);
+    }
+    .brand-title{
+      font-weight:800;
+      letter-spacing:-.02em;
+      font-size:14px;
+      line-height:1.1;
+    }
+    .brand-sub{
+      margin-top:2px;
+      font-weight:700;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .nav{
+      display:flex; gap:12px; flex-wrap:wrap; justify-content:flex-end;
+      font-size:13px;
+    }
+    .nav a{color: rgba(238,242,255,.78)}
+    .nav a:hover{color: var(--text); text-decoration:none}
+
+    /* Buttons (ONE centered CTA in hero) */
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      padding:12px 16px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background: rgba(255,255,255,.06);
+      color:var(--text);
+      font-weight:900;
+      text-decoration:none !important;
+      box-shadow: var(--shadow2);
+      transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+      white-space:nowrap;
+    }
+    .btn:hover{transform: translateY(-1px); box-shadow: var(--shadow); background: rgba(255,255,255,.09)}
+    .btn-primary{
+      color:#080a12;
+      border:1px solid rgba(255,255,255,.18);
+      background: linear-gradient(135deg, rgba(56,189,248,.92), rgba(244,114,182,.88));
+      box-shadow: 0 30px 80px rgba(244,114,182,.10);
+    }
+    .btn-big{
+      padding: 18px 36px;
+      font-size: 16px;
+      min-width: min(640px, 100%);
+    }
+
+    /* Panels */
+    .section{padding: 18px 0}
+    .panel{
+      border-radius: var(--r2);
+      border:1px solid var(--border);
+      background: linear-gradient(180deg, var(--paper2), var(--paper));
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+    }
+    .pad{padding: 24px}
+    .divider{height:1px; background: rgba(255,255,255,.10); margin: 16px 0}
+    .muted{color: var(--muted)}
+
+    /* Headings */
+    h1,h2,h3{margin:0}
+    h1{
+      font-family: "Space Grotesk", ui-sans-serif, system-ui;
+      font-weight:700;
+      letter-spacing:-.03em;
+      font-size: clamp(34px, 3.6vw, 56px);
+      line-height:1.05;
+      margin-top: 12px;
+      max-width: 980px;
+    }
+    h2{
+      font-weight:900;
+      letter-spacing:-.02em;
+      font-size: 22px;
+      margin-bottom: 10px;
+    }
+    h3{
+      font-weight:900;
+      letter-spacing:-.01em;
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+    p{margin:0 0 12px}
+
+    /* HERO */
+    .hero{padding: 28px 0 12px}
+    .hero-card{
+      border-radius: var(--r2);
+      border:1px solid rgba(255,255,255,.14);
+      background:
+        radial-gradient(920px 280px at 18% 8%, rgba(56,189,248,.22), transparent 62%),
+        radial-gradient(920px 280px at 84% 12%, rgba(244,114,182,.18), transparent 62%),
+        linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.05));
+      box-shadow: var(--shadow);
+      padding: 26px;
+      position:relative;
+    }
+
+    .chips{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom: 6px}
+    .chip{
+      display:inline-flex; align-items:center; gap:10px;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      font-weight:900;
+      font-size:13px;
+      color: rgba(238,242,255,.88);
+    }
+    .dot{
+      width:8px; height:8px; border-radius:99px;
+      background: linear-gradient(135deg, var(--c1), var(--c2));
+      box-shadow: 0 0 0 4px rgba(56,189,248,.10);
+    }
+
+    .hero-lead{
+      max-width: 980px;
+      margin-top: 12px;
+      font-size: 17px;
+      color: rgba(238,242,255,.86);
+    }
+    .hero-actions{
+      margin-top: 18px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    }
+
+    /* Calm highlights */
+    .highlights{
+      margin-top: 18px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:12px;
+    }
+    .hl{
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.18);
+      padding: 14px;
+    }
+    .hl b{display:block; margin-bottom:6px}
+    .hl span{color: var(--muted); font-size:14px}
+
+    /* Grids */
+    .grid2{display:grid; grid-template-columns: 1fr 1fr; gap:14px}
+    .card{
+      border-radius: var(--r1);
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      padding: 16px;
+    }
+    ul{margin: 8px 0 0 18px; color: var(--muted)}
+    li{margin: 6px 0}
+
+    /* Table */
+    .table-wrap{
+      overflow:auto;
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.14);
+      margin-top:12px;
+    }
+    table{width:100%; min-width: 900px; border-collapse: collapse; color: rgba(238,242,255,.92)}
+    th,td{padding:12px 12px; border-bottom:1px solid rgba(255,255,255,.10); vertical-align:top}
+    th{
+      text-align:left;
+      font-size:12px;
+      text-transform: uppercase;
+      letter-spacing:.10em;
+      color: rgba(238,242,255,.70);
+      background: rgba(0,0,0,.22);
+    }
+    tr:last-child td{border-bottom:none}
+
+    /* Input */
+    .checker{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:10px}
+    .input{
+      flex: 1 1 520px;
+      display:flex; align-items:center; gap:10px;
+      padding:12px 14px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+    }
+    .input input{
+      width:100%;
+      border:none; outline:none;
+      background: transparent;
+      color: rgba(238,242,255,.95);
+      font-size:14px;
+      font-family: Inter, system-ui;
+    }
+    .kbd{
+      font-weight:900; font-size:12px;
+      color: rgba(238,242,255,.78);
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      padding: 4px 8px;
+      border-radius: 10px;
+    }
+
+    /* Sources */
+    .sources{display:flex; flex-wrap:wrap; gap:10px; margin-top:10px}
+    .src{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: rgba(238,242,255,.88);
+      font-size:13px;
+      text-decoration:none;
+    }
+    .src:hover{background: rgba(255,255,255,.09); text-decoration:none}
+
+    /* FAQ */
+    details{
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      padding: 14px;
+    }
+    details + details{margin-top:10px}
+    summary{cursor:pointer; font-weight:900}
+    details p{margin:10px 0 0; color: var(--muted)}
+
+    /* Author */
+    .author{
+      display:flex; gap:12px; align-items:flex-start;
+      border-radius: 18px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      padding: 16px;
+    }
+    .avatar{
+      width:44px; height:44px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(56,189,248,.92), rgba(167,139,250,.92));
+      box-shadow: 0 18px 45px rgba(56,189,248,.10);
+      position:relative;
+      overflow:hidden;
+      flex:0 0 auto;
+    }
+    .avatar:after{
+      content:"";
+      position:absolute; inset:11px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.12);
+      transform: rotate(12deg);
+    }
+    .smallcaps{
+      color: rgba(238,242,255,.68);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .10em;
+    }
+
+    .footer{
+      padding: 26px 0 40px;
+      color: rgba(238,242,255,.65);
+      font-size: 13px;
+    }
+    .footer-row{
+      display:flex; gap:14px; justify-content:space-between; flex-wrap:wrap; align-items:center;
+      border-top:1px solid rgba(255,255,255,.10);
+      padding-top:16px;
+    }
+
+    @media (max-width: 980px){
+      .grid2{grid-template-columns:1fr}
+      .highlights{grid-template-columns:1fr}
+      table{min-width: 760px}
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="container">
+      <div class="topbar-inner">
+        <div class="brand" aria-label="Brand">
+          <div class="logo" aria-hidden="true"></div>
+          <div>
+            <div class="brand-title">erc20 transfer failed</div>
+            <div class="brand-sub">Token transfer errors • Updated 2026</div>
+          </div>
+        </div>
+
+        <nav class="nav" aria-label="Top navigation">
+          <a href="#meaning">Meaning</a>
+          <a href="#errors">Common errors</a>
+          <a href="#gas">Gas</a>
+          <a href="#restrictions">Restrictions</a>
+          <a href="#metamask">MetaMask</a>
+          <a href="#fix">Fix steps</a>
+          <a href="#contracts">Check contracts</a>
+          <a href="#faq">FAQ</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-card">
+          <div class="chips">
+            <span class="chip"><span class="dot" aria-hidden="true"></span> Transfer troubleshooting-first</span>
+            <span class="chip">ERC20 + wallets</span>
+            <span class="chip">Keyword focus: “token transfer reverted”</span>
+          </div>
+
+          <h1>ERC20 Transfer Failed – Why Crypto Transfers Fail</h1>
+
+          <p class="hero-lead">
+            An <b>erc20 transfer failed</b> or <b>token transfer reverted</b> message usually comes from one of four causes:
+            <b>gas issues</b>, <b>token contract restrictions</b>, <b>wallet/UI problems</b>, or a <b>pending transaction</b> blocking the nonce.
+            This page is a practical runbook for <b>transfer failed erc20</b>, <b>metamask transfer failed</b>, and <b>crypto transfer pending forever</b>.
+          </p>
+
+          <!-- ONE CTA centered -->
+          <div class="hero-actions">
+            <a class="btn btn-primary btn-big" href="#fix" aria-label="Start the fix runbook">Start the transfer fix runbook</a>
+          </div>
+
+          <div class="highlights" aria-label="Reading highlights">
+            <div class="hl">
+              <b>Most common fix</b>
+              <span>
+                A stuck/pending tx blocks your account nonce. Clear or replace the pending tx first, then retry the transfer.
+              </span>
+            </div>
+            <div class="hl">
+              <b>Most common “hard stop”</b>
+              <span>
+                Some tokens restrict transfers (blacklists, limits, pauses). If transfers revert repeatedly, verify token rules and contract code.
+              </span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Meaning -->
+    <section id="meaning" class="section">
+      <div class="container">
+        <div class="panel">
+          <div class="pad">
+            <h2>What ERC20 Transfer Failed Means</h2>
+            <p class="muted">
+              “ERC20 transaction failed” means the EVM did not finalize state changes. The transaction can fail at simulation (gas estimate fails),
+              or it can be mined and then revert due to a requirement failing (balance, allowance, blacklist, paused token, maxTx, etc.).
+            </p>
+
+            <div class="table-wrap" aria-label="Failure map">
+              <table>
+                <thead>
+                  <tr>
+                    <th>What you see</th>
+                    <th>Typical cause</th>
+                    <th>Fast check</th>
+                    <th>Fix direction</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><b>token transfer reverted</b></td>
+                    <td>Contract rule failed (require)</td>
+                    <td>Explorer shows “Reverted”</td>
+                    <td>Identify restriction & retry after fix</td>
+                  </tr>
+                  <tr>
+                    <td><b>gas estimation failed</b></td>
+                    <td>Tx would revert</td>
+                    <td>Wallet cannot estimate</td>
+                    <td>Check token rules; try small transfer</td>
+                  </tr>
+                  <tr>
+                    <td><b>crypto transfer pending forever</b></td>
+                    <td>Nonce stuck / gas too low</td>
+                    <td>Explorer shows pending</td>
+                    <td>Speed up / replace / cancel tx</td>
+                  </tr>
+                  <tr>
+                    <td><b>metamask transfer failed</b></td>
+                    <td>RPC / UI / wrong network</td>
+                    <td>Try another RPC</td>
+                    <td>Switch network, reset account, retry</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="grid2">
+              <div class="card">
+                <h3>Quick sanity checks</h3>
+                <ul>
+                  <li>Correct network selected</li>
+                  <li>Recipient address is valid</li>
+                  <li>Enough ETH for gas (even when sending tokens)</li>
+                  <li>No older pending tx blocking your nonce</li>
+                </ul>
+              </div>
+              <div class="card">
+                <h3>Red flags</h3>
+                <ul>
+                  <li>Repeated reverts even on tiny amounts</li>
+                  <li>Only some wallets can transfer (whitelist)</li>
+                  <li>Token contract recently changed / proxy upgrade</li>
+                </ul>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Errors -->
+    <section id="errors" class="section">
+      <div class="container">
+        <div class="panel">
+          <div class="pad">
+            <h2>Common ERC20 Transaction Errors</h2>
+            <div class="grid2" style="margin-top:12px">
+              <div class="card">
+                <h3>ERC20: transfer amount exceeds balance</h3>
+                <ul>
+                  <li>Token balance changed (airdrop/fee-on-transfer)</li>
+                  <li>You’re sending the wrong token contract</li>
+                  <li>Decimals mismatch in custom token display</li>
+                </ul>
+              </div>
+              <div class="card">
+                <h3>execution reverted / reverted</h3>
+                <ul>
+                  <li>Token is paused or gated</li>
+                  <li>MaxTx / maxWallet rules triggered</li>
+                  <li>Blacklist / anti-bot checks triggered</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <p class="muted" style="margin:0">
+              If a wallet can’t estimate gas, that’s often a hint the call would revert. Don’t “force send” unless you understand the restriction.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Gas -->
+    <section id="gas" class="section">
+      <div class="container">
+        <div class="panel">
+          <div class="pad">
+            <h2>Gas Problems in ERC20 Transfers</h2>
+            <p class="muted">
+              ERC20 transfers require ETH for gas. Underpriced gas leads to pending transactions, and a pending tx blocks later transfers by nonce.
+            </p>
+
+            <div class="grid2" style="margin-top:12px">
+              <div class="card">
+                <h3>Pending forever: what to do</h3>
+                <ul>
+                  <li>Use wallet “Speed up” (replace with higher fee)</li>
+                  <li>If available: “Cancel” with same nonce + higher fee</li>
+                  <li>Check mempool congestion and adjust fee accordingly</li>
+                </ul>
+              </div>
+              <div class="card">
+                <h3>Safety note</h3>
+                <ul>
+                  <li>Don’t approve unknown spenders while troubleshooting</li>
+                  <li>Only replace transactions you initiated from the same wallet</li>
+                  <li>Keep the nonce consistent when replacing/canceling</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <p class="muted">
+              For a clear, canonical explanation of Ethereum transactions, gas, and nonces, see
+              <a href="https://ethereum.org/en/developers/docs/transactions/" target="_blank" rel="nofollow noopener"><b>Ethereum.org transaction docs</b></a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Restrictions -->
+    <section id="restrictions" class="section">
+      <div class="container">
+        <div class="panel">
+          <div class="pad">
+            <h2>Token Contract Restrictions</h2>
+            <p class="muted">
+              Some tokens include transfer restrictions: paused transfers, blacklists, maxTx/maxWallet, whitelists, or fee-on-transfer logic.
+              These can cause <b>erc20 transfer reverted</b> and “execution reverted” errors.
+            </p>
+
+            <div class="grid2" style="margin-top:12px">
+              <div class="card">
+                <h3>Typical restrictions</h3>
+                <ul>
+                  <li>Pause switch (owner can pause transfers)</li>
+                  <li>Blacklist mapping (reject specific addresses)</li>
+                  <li>Max transaction / max wallet limits</li>
+                  <li>Transfer fees or special tax logic</li>
+                </ul>
+              </div>
+              <div class="card">
+                <h3>How to validate safely</h3>
+                <ul>
+                  <li>Read the contract on a block explorer</li>
+                  <li>Look for inherited patterns (e.g., AccessControl, Pausable)</li>
+                  <li>Check recent events: pause/unpause, ownership changes</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <p class="muted" style="margin:0">
+              For standard token patterns and what “safe ERC20” typically looks like, reference
+              <a href="https://docs.openzeppelin.com/contracts/" target="_blank" rel="nofollow noopener"><b>OpenZeppelin Contracts documentation</b></a>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MetaMask -->
+    <section id="metamask" class="section">
+      <div class="container">
+        <div class="panel">
+          <div class="pad">
+            <h2>Wallet Errors in MetaMask</h2>
+            <p class="muted">
+              “MetaMask transfer failed” can be caused by RPC outages, wrong network, stuck nonce, or corrupted local state.
+            </p>
+
+            <div class="grid2" style="margin-top:12px">
+              <div class="card">
+                <h3>Fix MetaMask issues</h3>
+                <ul>
+                  <li>Switch RPC (use a reputable provider)</li>
+                  <li>Toggle networks, then re-open MetaMask</li>
+                  <li>Reset account (clears local nonce tracking)</li>
+                </ul>
+              </div>
+              <div class="card">
+                <h3>Official guidance</h3>
+                <p class="muted" style="margin:0">
+                  MetaMask publishes official troubleshooting steps for stuck/pending transactions and resets in
+                  <a href="https://support.metamask.io/" target="_blank" rel="nofollow noopener"><b>MetaMask Support</b></a>.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Fix -->
+    <section id="fix" class="section">
+      <div class="container">
+        <div class="panel">
+          <div class="pad">
+            <h2>How to Fix ERC20 Transfer Failed</h2>
+            <p class="muted">
+              Use this workflow to resolve <b>crypto transfer failed</b>, <b>erc20 transaction reverted</b>, and “pending forever” cases without creating duplicates.
+            </p>
+
+            <div class="grid2" style="margin-top:12px">
+              <div class="card">
+                <h3>Step-by-step runbook</h3>
+                <ol style="margin:10px 0 0 18px; color: var(--muted)">
+                  <li><b>Check for pending tx</b>: if pending, speed up/replace/cancel first.</li>
+                  <li><b>Confirm correct network</b> and token contract.</li>
+                  <li><b>Verify gas funds</b>: you need ETH for gas even when sending tokens.</li>
+                  <li><b>Try a tiny transfer</b> (tests restrictions cheaply).</li>
+                  <li><b>If reverted</b>: inspect token contract restrictions on explorer.</li>
+                  <li><b>Retry with proper fee</b> after fixing the blocker.</li>
+                </ol>
+              </div>
+
+              <div class="card">
+                <h3>Paste a tx hash or token address (optional)</h3>
+                <p class="muted" style="margin-bottom:8px">
+                  This does not call any external service—it just helps normalize what you paste.
+                </p>
+                <div class="checker">
+                  <div class="input">
+                    <span class="kbd">0x</span>
+                    <input id="txOrAddr" placeholder="Paste tx hash (0x...) or token address (0x...)" aria-label="Tx hash or token address" />
+                  </div>
+                  <a class="btn" href="#contracts">Contract checks</a>
+                </div>
+
+                <div class="divider"></div>
+
+                <h3>Stop conditions</h3>
+                <ul>
+                  <li>Repeated reverts on tiny transfers</li>
+                  <li>Token requires weird approvals/permissions for transfers</li>
+                  <li>Contract is unverified or recently upgraded suspiciously</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <p class="muted" style="margin:0">
+              Long-tail: <b>erc20 transfer reverted</b>, <b>metamask transfer failed</b>, <b>crypto transfer pending forever</b>, <b>token transfer error</b>, <b>erc20 transaction reverted</b>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contract checks -->
+    <section id="contracts" class="section">
+      <div class="container">
+        <div class="panel">
+          <div class="pad">
+            <h2>How to Check ERC20 Token Contracts</h2>
+            <p class="muted">
+              A transfer can revert because the token contract enforces rules. Check the contract code and events on a reputable explorer.
+              For Ethereum mainnet, that’s typically <a href="https://etherscan.io/" target="_blank" rel="nofollow noopener"><b>Etherscan</b></a>.
+            </p>
+
+            <div class="grid2" style="margin-top:12px">
+              <div class="card">
+                <h3>What to look for</h3>
+                <ul>
+                  <li>Verified source code</li>
+                  <li>Owner privileges (pause/blacklist)</li>
+                  <li>Proxy patterns / recent upgrades</li>
+                  <li>Events: Paused/Unpaused, OwnershipTransferred</li>
+                </ul>
+              </div>
+              <div class="card">
+                <h3>Authoritative sources (unique for this page)</h3>
+                <p class="muted" style="margin-bottom:8px">
+                  Use these references when validating transfer mechanics:
+                </p>
+                <div class="sources" aria-label="Sources">
+                  <a class="src" href="https://eips.ethereum.org/EIPS/eip-20" target="_blank" rel="nofollow noopener">EIP-20 (ERC20 spec)</a>
+                  <a class="src" href="https://ethereum.org/en/developers/docs/transactions/" target="_blank" rel="nofollow noopener">Ethereum tx docs</a>
+                  <a class="src" href="https://docs.openzeppelin.com/contracts/" target="_blank" rel="nofollow noopener">OpenZeppelin patterns</a>
+                  <a class="src" href="https://support.metamask.io/" target="_blank" rel="nofollow noopener">MetaMask support</a>
+                  <a class="src" href="https://info.etherscan.com/what-is-a-token-contract/" target="_blank" rel="nofollow noopener">Etherscan: token contract basics</a>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- EEAT -->
+    <section class="section">
+      <div class="container">
+        <div class="panel">
+          <div class="pad">
+            <h2>Trust & Update Notes</h2>
+            <div class="author" aria-label="Author box">
+              <div class="avatar" aria-hidden="true"></div>
+              <div>
+                <div class="smallcaps">Author</div>
+                <div style="font-weight:900">Onchain Transfer Support Desk</div>
+                <div class="muted" style="margin-top:6px">
+                  Last updated: <b>March 4, 2026</b> • Educational content only (not financial advice).
+                </div>
+              </div>
+            </div>
+            <div class="divider"></div>
+            <p class="muted" style="margin:0">
+              If gas estimation fails, treat it as a strong signal the call will revert. Investigate token rules before forcing a send.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq" class="section">
+      <div class="container">
+        <div class="panel">
+          <div class="pad">
+            <h2>FAQ – ERC20 Transfer Errors</h2>
+
+            <details>
+              <summary>What does “ERC20 transfer failed” mean?</summary>
+              <p>
+                It means the token transfer call did not complete successfully. It may have reverted due to contract rules,
+                or it may be blocked by a pending transaction/nonce issue.
+              </p>
+            </details>
+
+            <details>
+              <summary>Why does my ERC20 transfer revert immediately?</summary>
+              <p>
+                The token contract may enforce restrictions (paused, blacklist, maxTx/maxWallet) or the call fails a requirement.
+                Verify the token contract code and events on an explorer like Etherscan.
+              </p>
+            </details>
+
+            <details>
+              <summary>MetaMask says “transfer failed” — what should I do?</summary>
+              <p>
+                First check for a pending transaction. If pending, speed up/replace/cancel it. Then verify network, RPC, and that you have ETH for gas.
+                MetaMask’s official steps are in MetaMask Support.
+              </p>
+            </details>
+
+            <details>
+              <summary>Why is my crypto transfer pending forever?</summary>
+              <p>
+                Most often the gas fee is too low or the network is congested. A pending tx blocks newer txs due to nonce ordering.
+                Replace/speed up the pending tx to unblock transfers.
+              </p>
+            </details>
+
+            <details>
+              <summary>How much gas does an ERC20 transfer need?</summary>
+              <p>
+                Plain transfers often require tens of thousands of gas units, but fee-on-transfer or complex tokens can require more.
+                What matters most is choosing a competitive fee so the tx gets included quickly.
+              </p>
+            </details>
+
+            <details>
+              <summary>How can I check if a token has transfer restrictions?</summary>
+              <p>
+                Look for standard patterns like Pausable/AccessControl, blacklist mappings, or maxTx logic in verified source code.
+                OpenZeppelin documentation helps identify common mechanisms.
+              </p>
+            </details>
+
+            <details>
+              <summary>Is it safe to “force send” when gas estimation fails?</summary>
+              <p>
+                Usually no. Gas estimation failing is often a signal that the call will revert. Investigate token restrictions first,
+                or test with a tiny amount before risking more fees.
+              </p>
+            </details>
+
+            <div class="divider"></div>
+            <p class="muted" style="margin:0">
+              Primary keywords: <b>transfer failed erc20</b>, <b>erc20 transfer failed</b>, <b>token transfer reverted</b>, <b>crypto transfer failed</b>, <b>erc20 transaction failed</b>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="footer">
+      <div class="container">
+        <div class="footer-row">
+          <div>© 2026 erc20-transfer-failed.github.io • ERC20 transfer troubleshooting</div>
+          <div>
+            <a href="#fix">Fix runbook</a> • <a href="#contracts">Contract checks</a> • <a href="#faq">FAQ</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // UX: extract tx hash or address if user pastes extra text
+    (function(){
+      const input = document.getElementById('txOrAddr');
+      if(!input) return;
+
+      function normalize(){
+        const v = (input.value || "").trim();
+        const tx = v.match(/0x[a-fA-F0-9]{64}/);
+        const addr = v.match(/0x[a-fA-F0-9]{40}/);
+        if(tx) input.value = tx[0];
+        else if(addr) input.value = addr[0];
+      }
+      input.addEventListener('paste', () => setTimeout(normalize, 0));
+      input.addEventListener('blur', normalize);
+    })();
+  </script>
+</body>
+</html>
